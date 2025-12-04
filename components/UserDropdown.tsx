@@ -64,10 +64,6 @@ const UserDropdown = () => {
                     <NavItems />
 
                 </nav>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
-                <DropdownMenuItem>Team</DropdownMenuItem>
-                <DropdownMenuItem>Subscription</DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignout}>Sign Out</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     )
