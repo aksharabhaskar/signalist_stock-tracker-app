@@ -4,10 +4,13 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import InputField from '@/components/forms/InputField';
 import FooterLink from '@/components/forms/FooterLink';
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+import { signInWithEmail } from "@/lib/actions/auth.actions";
+import { toast } from "sonner";
 
 const SignIn = () => {
-    const router = useRouter()
+    const router = useRouter(); // Remove the duplicate
+
     const {
         register,
         handleSubmit,
@@ -21,14 +24,15 @@ const SignIn = () => {
     });
 
     const onSubmit = async (data: SignInFormData) => {
-        try {
-            const result = await signInWithEmail(data);
-            if(result.success) router.push('/');
-        } catch (e) {
-            console.error(e);
-            toast.error('Sign in failed', {
-                description: e instanceof Error ? e.message : 'Failed to sign in.'
-            })
+        const result = await signInWithEmail(data);
+
+        if (result.success) {
+            toast.success("Signed in successfully!");
+            router.push("/");
+        } else {
+            toast.error("Sign in failed", {
+                description: result.error || "Failed to sign in.",
+            });
         }
     }
 
@@ -43,7 +47,13 @@ const SignIn = () => {
                     placeholder="johndoe@gmail.com"
                     register={register}
                     error={errors.email}
-                    validation={{ required: 'Email is required', pattern: /^\w+@\w+\.\w+$/ }}
+                    validation={{
+                        required: 'Email is required',
+                        pattern: {
+                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                            message: "Please enter a valid email address"
+                        }
+                    }}
                 />
 
                 <InputField
@@ -53,11 +63,17 @@ const SignIn = () => {
                     type="password"
                     register={register}
                     error={errors.password}
-                    validation={{ required: 'Password is required', minLength: 8 }}
+                    validation={{
+                        required: 'Password is required',
+                        minLength: {
+                            value: 8,
+                            message: "Password must be at least 8 characters"
+                        }
+                    }}
                 />
 
                 <Button type="submit" disabled={isSubmitting} className="yellow-btn w-full mt-5">
-                    {isSubmitting ? 'Signing In' : 'Sign In'}
+                    {isSubmitting ? 'Signing In...' : 'Sign In'}
                 </Button>
 
                 <FooterLink text="Don't have an account?" linkText="Create an account" href="/sign-up" />
@@ -65,4 +81,5 @@ const SignIn = () => {
         </>
     );
 };
+
 export default SignIn;
