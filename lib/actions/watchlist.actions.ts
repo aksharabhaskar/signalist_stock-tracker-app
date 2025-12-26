@@ -3,6 +3,10 @@
 import { connectToDatabase } from "@/database/mongoose";
 import Watchlist from "@/database/models/watchlist.model";
 
+/**
+ * Fetch watchlist symbols for a user identified by email.
+ * NOTE: Uses the "user" collection (NOT "users") to match getAllUsersForNewsEmail().
+ */
 export const getWatchlistSymbolsByEmail = async (email: string): Promise<string[]> => {
     try {
         const mongoose = await connectToDatabase();
@@ -10,15 +14,15 @@ export const getWatchlistSymbolsByEmail = async (email: string): Promise<string[
 
         if (!db) throw new Error("Database not connected");
 
-        // Find user by email in users collection (changed from "user" to "users")
-        const user = await db.collection("users").findOne({ email });
+        // Find user by email in user collection (changed from "users" to "user")
+        const user = await db.collection("user").findOne({ email });
 
         if (!user) {
             console.log(`No user found with email: ${email}`);
             return [];
         }
 
-        // Use _id and convert to string (users collection only has _id, not id)
+        // Use _id and convert to string (user collection may have _id, and may also have id)
         const userId = user._id?.toString();
 
         if (!userId) {
@@ -34,8 +38,7 @@ export const getWatchlistSymbolsByEmail = async (email: string): Promise<string[
         console.log(`User ${email} has ${watchlistItems.length} watchlist symbols`);
 
         // Return just the symbols as strings
-        return watchlistItems.map(item => item.symbol);
-
+        return watchlistItems.map((item: any) => item.symbol);
     } catch (error) {
         console.error("Error fetching watchlist symbols:", error);
         return [];
