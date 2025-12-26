@@ -19,9 +19,11 @@ export const transporter = nodemailer.createTransport({
 export const sendWelcomeEmail = async (
     { email, name, intro }: WelcomeEmailData
 ) => {
+    const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
     const htmlTemplate = WELCOME_EMAIL_TEMPLATE
         .replace("{{name}}", name)
-        .replace("{{intro}}", intro);
+        .replace("{{intro}}", intro)
+        .replace(/https:\/\/signalist-stock-tracker-[^/]*\.vercel\.app/g, baseUrl);
 
     const mailOptions = {
         from: `"Signalist" <${process.env.NODEMAILER_EMAIL}>`,
