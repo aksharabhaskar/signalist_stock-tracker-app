@@ -8,7 +8,7 @@ export const getAllUsersForNewsEmail = async () => {
         if (!db) throw new Error("Database not connected");
 
         // Use the correct collection name
-        const col = db.collection("users");
+        const col = db.collection("user");
 
         const allUsers = await col.find({}).toArray();
         console.log("ALL USERS (no filter):", JSON.stringify(allUsers, null, 2));
