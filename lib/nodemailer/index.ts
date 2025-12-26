@@ -1,11 +1,23 @@
 import nodemailer from "nodemailer";
-import { WELCOME_EMAIL_TEMPLATE } from "@/lib/nodemailer/templates";
-import { NEWS_SUMMARY_EMAIL_TEMPLATE } from "@/lib/nodemailer/templates";
+import { WELCOME_EMAIL_TEMPLATE, NEWS_SUMMARY_EMAIL_TEMPLATE } from "@/lib/nodemailer/templates";
 
 interface WelcomeEmailData {
     email: string;
     name: string;
     intro: string;
+}
+
+// Use your existing environment variable
+const BASE_URL = process.env.better_auth_url || "https://signalist.app";
+
+// Helper function to apply URL replacements
+function applyUrlReplacements(template: string) {
+    return template
+        .replaceAll("https://stock-market-dev.vercel.app/", `${BASE_URL}/`)
+        .replaceAll("https://stock-market-dev.vercel.app", `${BASE_URL}`)
+        .replaceAll("https://signalist.app/", `${BASE_URL}/`)
+        .replaceAll("https://signalist.app", `${BASE_URL}`)
+        .replaceAll('href="/"', `href="${BASE_URL}/"`);
 }
 
 export const transporter = nodemailer.createTransport({
@@ -19,11 +31,13 @@ export const transporter = nodemailer.createTransport({
 export const sendWelcomeEmail = async (
     { email, name, intro }: WelcomeEmailData
 ) => {
-    const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
-    const htmlTemplate = WELCOME_EMAIL_TEMPLATE
-        .replace("{{name}}", name)
-        .replace("{{intro}}", intro)
-        .replace(/https:\/\/signalist-stock-tracker-[^/]*\.vercel\.app/g, baseUrl);
+    // First replace content placeholders (using replaceAll instead of replace)
+    let htmlTemplate = WELCOME_EMAIL_TEMPLATE
+        .replaceAll("{{name}}", name)
+        .replaceAll("{{intro}}", intro);
+    
+    // Then apply URL replacements
+    htmlTemplate = applyUrlReplacements(htmlTemplate);
 
     const mailOptions = {
         from: `"Signalist" <${process.env.NODEMAILER_EMAIL}>`,
@@ -39,9 +53,13 @@ export const sendWelcomeEmail = async (
 export const sendNewsSummaryEmail = async (
     { email, date, newsContent }: { email: string; date: string; newsContent: string }
 ) => {
-    const htmlTemplate = NEWS_SUMMARY_EMAIL_TEMPLATE
-        .replace("{{date}}", date)
-        .replace("{{newsContent}}", newsContent);
+    // First replace content placeholders (using replaceAll instead of replace)
+    let htmlTemplate = NEWS_SUMMARY_EMAIL_TEMPLATE
+        .replaceAll("{{date}}", date)
+        .replaceAll("{{newsContent}}", newsContent);
+    
+    // Then apply URL replacements
+    htmlTemplate = applyUrlReplacements(htmlTemplate);
 
     const mailOptions = {
         from: `"Signalist News" <${process.env.NODEMAILER_EMAIL}>`,
