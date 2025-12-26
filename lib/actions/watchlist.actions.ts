@@ -14,8 +14,8 @@ export const getWatchlistSymbolsByEmail = async (email: string): Promise<string[
 
         if (!db) throw new Error("Database not connected");
 
-        // Find user by email in user collection (changed from "users" to "user")
-        const user = await db.collection("user").findOne({ email });
+        // Find user by email in users collection
+        const user = await db.collection("users").findOne({ email });
 
         if (!user) {
             console.log(`No user found with email: ${email}`);
